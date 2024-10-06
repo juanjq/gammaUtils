@@ -7,15 +7,18 @@ import pandas as pd
 
 
 def check_files_exist(global_variables):
-    for file in [f"path_dl{i}" for i in [1, 2, 3]]:
+    array_datasteps_files = [1]
+    if global_variables["path_dl2"] != None:
+        array_datasteps_files.append(2)
+    if global_variables["path_dl3"] != None:
+        array_datasteps_files.append(3)
+        
+    for file in [f"path_dl{i}" for i in array_datasteps_files]:
         # Check that files exist
         if not (os.path.isfile(global_variables[file])):
             raise FileNotFoundError(f"Input DL{file[-1:]} file ({global_variables[file]}) not found.")
     
-def open_files(global_variables):
-    key_dl1="/dl1/event/telescope/parameters/LST_LSTCam"
-    key_dl2="/dl2/event/telescope/parameters/LST_LSTCam"
-    
+def open_files(global_variables, key_dl1, key_dl2):
     # Checking if all files exist
     check_files_exist(global_variables=global_variables) 
     
@@ -23,8 +26,12 @@ def open_files(global_variables):
     table_dl1_datacheck = tables.open_file(global_variables["path_dl1_dcheck"]).root.dl1datacheck
 
     table_dl1 = pd.read_hdf(global_variables[f"path_dl1"], key_dl1)
-    table_dl2 = pd.read_hdf(global_variables[f"path_dl2"], key_dl2)
     
+    if global_variables[f"path_dl2"] != None:
+        table_dl2 = pd.read_hdf(global_variables[f"path_dl2"], key_dl2)
+    else:
+        table_dl2 = None
+        
     return table_dl1_datacheck, table_dl1, table_dl2
     
 def find_dl1_fname(run_number, dchecking=False, version_string="v*", return_version=False, print_details=True):
